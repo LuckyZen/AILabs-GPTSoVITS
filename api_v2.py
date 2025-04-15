@@ -284,7 +284,7 @@ def check_params(req: dict):
             status_code=400,
             content={"message": f"prompt_lang: {prompt_lang} is not supported in version {tts_config.version}"},
         )
-    if media_type not in ["wav", "raw", "ogg", "aac"]:
+    if media_type not in ["wav", "raw", "ogg", "aac", "pcm"]:
         return JSONResponse(status_code=400, content={"message": f"media_type: {media_type} is not supported"})
     elif media_type == "ogg" and not streaming_mode:
         return JSONResponse(status_code=400, content={"message": "ogg format is not supported in non-streaming mode"})
@@ -352,7 +352,7 @@ async def tts_handle(req: dict):
                 for sr, chunk in tts_generator:
                     if if_frist_chunk and media_type == "wav":
                         yield wave_header_chunk(sample_rate=sr)
-                        media_type = "raw"
+                        media_type = "pcm"
                         if_frist_chunk = False
                     yield pack_audio(BytesIO(), chunk, sr, media_type).getvalue()
 
